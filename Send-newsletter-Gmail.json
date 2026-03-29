@@ -1,0 +1,546 @@
+{
+  "name": "Send-newsletter-Gmail",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "7cd82b1b-2fca-4d81-b45a-da69d1dd9a9d",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.Subject.toLowerCase().includes(\"newsletter\") }}",
+              "rightValue": "gmail_trigger"
+            },
+            {
+              "id": "d71abd68-ab36-4b68-a51f-23d8cf12fbbb",
+              "leftValue": "={{ $json.text.toLowerCase().includes(\"newsletter\") }}",
+              "rightValue": "=slack_trigger",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "015ffac1-e88a-4114-948b-cf93e8798389",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1040,
+        -112
+      ],
+      "typeVersion": 2.3
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a premium AI newsletter about: {{ $json.newsletter_content }}\\n\\nTailor the content specifically to this topic. Be specific, current, and technically credible. Do not use generic AI platitudes. ",
+        "options": {
+          "systemMessage": "You are an expert AI newsletter writer for a premium B2B technology publication called 'The Agentic Edge'. Your audience is CTOs, ML engineers, product managers, and AI researchers. Write with authority, clarity, and insight. Always return ONLY valid JSON — no markdown, no preamble, no trailing text.\\n\\nReturn exactly this JSON shape:\\n{\\n  \\\"title\\\": \\\"<Compelling headline — editorial tone, ≤12 words>\\\",\\n  \\\"intro\\\": \\\"<2-sentence hook paragraph, engaging, sets context>\\\",\\n  \\\"hero_stats\\\": [\\n    {\\\"value\\\": \\\"<short metric or keyword>\\\", \\\"label\\\": \\\"<3-4 word label>\\\"},\\n    {\\\"value\\\": \\\"<short metric or keyword>\\\", \\\"label\\\": \\\"<3-4 word label>\\\"},\\n    {\\\"value\\\": \\\"<short metric or keyword>\\\", \\\"label\\\": \\\"<3-4 word label>\\\"}\\n  ],\\n  \\\"feature\\\": {\\n    \\\"category\\\": \\\"<one of: Research Spotlight / Industry Trend / Technical Deep Dive / Product Release / Opinion>\\\",\\n    \\\"title\\\": \\\"<Feature article headline ≤10 words>\\\",\\n    \\\"body\\\": \\\"<3 paragraphs of HTML — use <p> tags, may use <strong> for key terms. 280-350 words total. Authoritative, insightful, no fluff.>\\\"\\n  },\\n  \\\"quote\\\": {\\n    \\\"text\\\": \\\"<A compelling insight or industry quote — 20-35 words. May be real or synthesised expert voice.>\\\",\\n    \\\"source\\\": \\\"<Name, Role / Organisation>\\\"\\n  },\\n  \\\"developments\\\": [\\n    {\\\"icon\\\": \\\"⚡\\\", \\\"title\\\": \\\"<8 words max>\\\", \\\"body\\\": \\\"<2 sentences, punchy>\\\"},\\n    {\\\"icon\\\": \\\"🔗\\\", \\\"title\\\": \\\"<8 words max>\\\", \\\"body\\\": \\\"<2 sentences, punchy>\\\"},\\n    {\\\"icon\\\": \\\"🧠\\\", \\\"title\\\": \\\"<8 words max>\\\", \\\"body\\\": \\\"<2 sentences, punchy>\\\"}\\n  ],\\n  \\\"list_section\\\": {\\n    \\\"title\\\": \\\"<Section heading — e.g. '5 Things to Watch This Week'>\\\",\\n    \\\"items\\\": [\\n      {\\\"title\\\": \\\"<Item title>\\\", \\\"description\\\": \\\"<1-2 sentence explanation>\\\"},\\n      {\\\"title\\\": \\\"<Item title>\\\", \\\"description\\\": \\\"<1-2 sentence explanation>\\\"},\\n      {\\\"title\\\": \\\"<Item title>\\\", \\\"description\\\": \\\"<1-2 sentence explanation>\\\"},\\n      {\\\"title\\\": \\\"<Item title>\\\", \\\"description\\\": \\\"<1-2 sentence explanation>\\\"},\\n      {\\\"title\\\": \\\"<Item title>\\\", \\\"description\\\": \\\"<1-2 sentence explanation>\\\"}\\n    ]\\n  },\\n  \\\"tags\\\": [\\\"<tag1>\\\", \\\"<tag2>\\\", \\\"<tag3>\\\", \\\"<tag4>\\\", \\\"<tag5>\\\"],\\n  \\\"cta\\\": {\\n    \\\"title\\\": \\\"<CTA headline ≤8 words>\\\",\\n    \\\"body\\\": \\\"<1-2 sentence invitation to act>\\\",\\n    \\\"button_text\\\": \\\"<3-5 words>\\\",\\n    \\\"url\\\": \\\"https://example.com\\\"\\n  },\\n  \\\"footer\\\": \\\"<One sentence: what this newsletter is and who it's for.>\\\"\\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -288,
+        -192
+      ],
+      "id": "79bb5419-9c56-4940-81db-d905b5c66149",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 3000,
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          },
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        128
+      ],
+      "id": "5434273e-fa32-4014-901c-d1ad1a51c777",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "6lBzo07NcIfhlhQS",
+          "name": "Vignesh OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.newsletter_content }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        128
+      ],
+      "id": "3cb6391d-5ffd-46dd-a9f9-794b99fc43da",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.toEmail }}",
+        "subject": "={{ $json.emailSubject }}",
+        "message": "={{ $json.htmlBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        -192
+      ],
+      "id": "d7b5459f-70da-4e65-a682-e5715f335fc5",
+      "name": "Send a message",
+      "webhookId": "5645289a-d4dc-4702-9cfc-9a6b84f374c3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RS55S7TBhtnXIVSr",
+          "name": "Vignesh Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1232,
+        -224
+      ],
+      "id": "d2c4d3a0-8bc0-4db9-aa7a-bf83d447fc3d",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RS55S7TBhtnXIVSr",
+          "name": "Vignesh Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ─────────────────────────────────────────────────────────────────\n// N8N CODE NODE — Newsletter Builder (Dual Trigger Safe)\n// ─────────────────────────────────────────────────────────────────\n\n// ── SAFE TRIGGER READER ───────────────────────────────────────\n// N8n throws a hard Error (not null) when you access an unexecuted\n// node. Optional chaining (?.) does NOT catch it. Use try/catch.\n\nfunction safeGet(nodeName) {\n  try {\n    const item = $node[nodeName].json;  // throws if not executed\n    if (!item) return null;\n    return item;\n  } catch (e) {\n    return null;\n  }\n}\n\nconst gmailData = safeGet('Gmail Trigger');\nconst slackData = safeGet('Slack Trigger1');\n\n// Determine active source\nconst isGmail = gmailData !== null;\nconst isSlack = slackData !== null;\n\n// ── Extract topic ─────────────────────────────────────────────\n// Gmail: use subject line as the topic, fallback to snippet\n// Slack: use the message text, fallback to snippet\nlet topic = \"AI Agents\";\nif (isGmail) {\n  topic = gmailData.newsletter_content\n       || gmailData.Subject\n       || gmailData.snippet\n       || \"AI Agents\";\n} else if (isSlack) {\n  topic = slackData.text\n    || slackData.newsletter_content\n       || slackData.message?.text\n       || slackData.snippet\n       || \"AI Agents\";\n}\n\n// Strip any slash-command prefix if coming from Slack\ntopic = topic.replace(/^\\/(create-newsletter|newsletter)\\s*/i, \"\").trim() || \"AI Agents\";\n\n// ── Extract sender email ──────────────────────────────────────\n// Gmail: \"From\" header contains \"Name <email@domain.com>\"\n// Slack: user_profile.email or user.email\nlet senderEmail = \"\";\nif (isGmail) {\n  const rawFrom = gmailData.From || gmailData.from || \"\";\n  // Parse \"Display Name <email@example.com>\" → email@example.com\n  const match = rawFrom.match(/<([^>]+)>/) || rawFrom.match(/([^\\s]+@[^\\s]+)/);\n  senderEmail = match ? match[1] : rawFrom;\n} else if (isSlack) {\n  senderEmail = slackData.user_profile?.email\n             || slackData.event?.user_profile?.email\n             || slackData.from_email\n             || slackData.email\n             || \"\";\n}\n\n// ── AI Agent output ───────────────────────────────────────────\nconst raw = $input.first().json.output || $input.first().json.text || \"\";\n\n// ── 1. Parse OpenAI JSON response ────────────────────────────\nlet data;\ntry {\n  data = JSON.parse(raw);\n} catch (e) {\n  const cleaned = raw.replace(/```json|```/g, \"\").trim();\n  try {\n    data = JSON.parse(cleaned);\n  } catch (e2) {\n    throw new Error(`Failed to parse AI response as JSON. Raw starts with: ${raw.slice(0, 120)}`);\n  }\n}\n\n// ── 2. Helper utilities ───────────────────────────────────────\nconst today = new Date();\nconst dateStr = today.toLocaleDateString(\"en-US\", {\n  year: \"numeric\", month: \"long\", day: \"numeric\"\n});\nconst year = today.getFullYear();\n\nfunction estimateReadTime(text) {\n  const words = (text || \"\").replace(/<[^>]+>/g, \"\").split(/\\s+/).length;\n  return Math.max(2, Math.round(words / 200));\n}\n\nfunction buildTags(tagsArr = []) {\n  return (tagsArr || [])\n    .slice(0, 5)\n    .map(t => `<span class=\"tag\">${t}</span>`)\n    .join(\"\\n\");\n}\n\nfunction buildNumberedItems(itemsList = []) {\n  return (itemsList || [])\n    .slice(0, 5)\n    .map((item, i) => `\n      <div class=\"numbered-item\">\n        <div class=\"item-number\">0${i + 1}</div>\n        <div class=\"item-content\">\n          <div class=\"item-title\">${item.title || \"\"}</div>\n          <p class=\"item-desc\">${item.description || \"\"}</p>\n        </div>\n      </div>\n    `).join(\"\");\n}\n\n// ── 3. Destructure AI response ────────────────────────────────\nconst {\n  title = \"AI Newsletter\",\n  intro = \"\",\n  hero_stats = [],\n  feature = {},\n  quote = {},\n  developments = [{}, {}, {}],\n  list_section = {},\n  tags = [],\n  cta = {},\n  footer = \"\"\n} = data;\n\nconst s1 = hero_stats[0] || { value: \"GPT-4o\", label: \"Model Used\" };\nconst s2 = hero_stats[1] || { value: String(year), label: \"Current Year\" };\nconst s3 = hero_stats[2] || { value: \"AI Agents\", label: \"Focus Area\" };\nconst d1 = developments[0] || {};\nconst d2 = developments[1] || {};\nconst d3 = developments[2] || {};\n\nconst allText = [intro, feature.body || \"\", (list_section.items || []).map(i => i.description || \"\").join(\" \")].join(\" \");\nconst readTime = estimateReadTime(allText);\n\n// Source label for footer\nconst sourceLabel = isGmail ? \"Gmail\" : \"Slack\";\n\n// ── 4. Build HTML ─────────────────────────────────────────────\nconst htmlBody = `\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\"/>\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"/>\n<title>${title}</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap');\nbody{margin:0;padding:0;background:#0F0F12;font-family:'DM Sans',sans-serif;}\n.email-wrapper{max-width:680px;margin:0 auto;background:#0F0F12;}\n.header{background:#0A0A0E;border-bottom:1px solid #1E1E28;padding:32px 48px 28px;}\n.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}\n.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#E8E6FF;letter-spacing:-0.5px;}\n.logo span{color:#7B6FFF;}\n.issue-badge{background:#1A1A2E;border:1px solid #2E2E4E;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;color:#9590C8;text-transform:uppercase;letter-spacing:1.2px;}\n.header-divider{height:1px;background:linear-gradient(90deg,transparent,#2E2E4E 30%,#7B6FFF 50%,#2E2E4E 70%,transparent);margin:0;}\n.header-meta{display:flex;align-items:center;gap:24px;margin-top:20px;}\n.meta-item{font-size:12px;color:#5A5870;font-weight:500;}\n.meta-item span{color:#9590C8;}\n.hero{background:linear-gradient(135deg,#0D0B1E 0%,#0A0A0E 40%,#110B1E 100%);padding:56px 48px 48px;position:relative;overflow:hidden;}\n.edition-tag{display:inline-flex;align-items:center;gap:8px;background:#1A1630;border:1px solid #2E2850;border-radius:4px;padding:6px 14px;margin-bottom:28px;}\n.edition-tag span{font-size:11px;font-weight:600;color:#7B6FFF;text-transform:uppercase;letter-spacing:1.4px;}\n.hero-title{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:#F0EEFF;line-height:1.15;margin:0 0 20px;letter-spacing:-0.8px;}\n.hero-intro{font-size:16px;color:#8A8799;line-height:1.75;max-width:520px;margin:0 0 32px;font-weight:300;}\n.hero-stats{display:flex;gap:32px;}\n.stat{border-left:2px solid #2E2850;padding-left:14px;}\n.stat-value{font-size:22px;font-weight:600;color:#E8E6FF;font-family:'Playfair Display',serif;}\n.stat-label{font-size:11px;color:#5A5870;text-transform:uppercase;letter-spacing:1px;font-weight:500;margin-top:2px;}\n.section-label{display:flex;align-items:center;gap:12px;margin-bottom:20px;}\n.section-label .line{flex:1;height:1px;background:#1E1E28;}\n.section-label span{font-size:10px;font-weight:700;color:#5A5870;text-transform:uppercase;letter-spacing:2px;white-space:nowrap;}\n.content{padding:0 48px;}\n.feature-card{background:#13131C;border:1px solid #1E1E28;border-radius:12px;padding:36px;margin:32px 0;position:relative;overflow:hidden;}\n.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7B6FFF,#63B3ED,#7B6FFF);}\n.card-category{font-size:10px;font-weight:700;color:#7B6FFF;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;}\n.card-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#F0EEFF;line-height:1.3;margin:0 0 16px;letter-spacing:-0.3px;}\n.card-body{font-size:15px;color:#8A8799;line-height:1.8;margin:0 0 24px;font-weight:300;}\n.card-body p{margin:0 0 14px;}\n.card-body strong{color:#C5C1EF;font-weight:500;}\n.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0;}\n.tag{background:#1A1630;border:1px solid #2E2850;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:#9590C8;}\n.quote-block{background:#0D0B1E;border-left:3px solid #7B6FFF;border-radius:0 8px 8px 0;padding:24px 28px;margin:28px 0;}\n.quote-text{font-family:'Playfair Display',serif;font-size:18px;font-style:italic;color:#C5C1EF;line-height:1.6;margin:0 0 12px;}\n.quote-source{font-size:12px;color:#5A5870;font-weight:500;}\n.three-grid{display:table;width:100%;border-collapse:separate;border-spacing:0;}\n.grid-cell{display:table-cell;width:33.33%;vertical-align:top;padding:0 8px;}\n.grid-cell:first-child{padding-left:0;}.grid-cell:last-child{padding-right:0;}\n.mini-card{background:#13131C;border:1px solid #1E1E28;border-radius:10px;padding:24px 20px;}\n.mini-card-icon{font-size:20px;margin-bottom:12px;}\n.mini-card-title{font-size:14px;font-weight:600;color:#C5C1EF;margin:0 0 8px;line-height:1.3;}\n.mini-card-body{font-size:13px;color:#6A677E;line-height:1.65;margin:0;font-weight:300;}\n.numbered-section{margin:28px 0;}\n.numbered-item{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid #1A1A24;}\n.numbered-item:last-child{border-bottom:none;}\n.item-number{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:#2E2850;line-height:1;min-width:36px;}\n.item-title{font-size:15px;font-weight:600;color:#C5C1EF;margin:0 0 6px;}\n.item-desc{font-size:13px;color:#6A677E;line-height:1.65;margin:0;font-weight:300;}\n.cta-block{background:linear-gradient(135deg,#0D0B1E,#110B1E);border:1px solid #2E2850;border-radius:14px;padding:48px;text-align:center;margin:36px 0;}\n.cta-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#F0EEFF;margin:0 0 14px;}\n.cta-body{font-size:15px;color:#8A8799;line-height:1.7;max-width:420px;margin:0 auto 28px;}\n.cta-btn{display:inline-block;background:#7B6FFF;border-radius:8px;padding:14px 36px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;}\n.footer-section{margin-top:8px;padding:36px 48px;border-top:1px solid #1A1A24;background:#0A0A0E;}\n.footer-links{display:flex;gap:20px;justify-content:center;margin-bottom:20px;}\n.footer-links a{font-size:12px;color:#5A5870;text-decoration:none;font-weight:500;}\n.footer-text{font-size:11px;color:#3A3848;text-align:center;line-height:1.7;}\n.footer-brand{font-family:'Playfair Display',serif;font-size:16px;color:#3A3848;text-align:center;margin-bottom:10px;}\n.footer-brand span{color:#4A4560;}\n.spacer-sm{height:24px;}.spacer-md{height:40px;}\n</style>\n</head>\n<body>\n<div class=\"email-wrapper\">\n  <div class=\"header\">\n    <div class=\"header-top\">\n      <div class=\"logo\">The Agentic<span>.</span>Edge</div>\n      <div class=\"issue-badge\">Weekly Brief · ${dateStr}</div>\n    </div>\n    <div class=\"header-divider\"></div>\n    <div class=\"header-meta\">\n      <div class=\"meta-item\">Topic: <span>${topic}</span></div>\n      <div class=\"meta-item\">Read time: <span>~${readTime} min</span></div>\n      <div class=\"meta-item\">Category: <span>AI Agents</span></div>\n    </div>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"edition-tag\"><span>Weekly Intelligence Brief</span></div>\n    <h1 class=\"hero-title\">${title}</h1>\n    <p class=\"hero-intro\">${intro}</p>\n    <div class=\"hero-stats\">\n      <div class=\"stat\"><div class=\"stat-value\">${s1.value}</div><div class=\"stat-label\">${s1.label}</div></div>\n      <div class=\"stat\"><div class=\"stat-value\">${s2.value}</div><div class=\"stat-label\">${s2.label}</div></div>\n      <div class=\"stat\"><div class=\"stat-value\">${s3.value}</div><div class=\"stat-label\">${s3.label}</div></div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n    <div class=\"spacer-md\"></div>\n    <div class=\"section-label\"><div class=\"line\"></div><span>Feature Deep Dive</span><div class=\"line\"></div></div>\n\n    <div class=\"feature-card\">\n      <div class=\"card-category\">${feature.category || \"AI Agents\"}</div>\n      <h2 class=\"card-title\">${feature.title || \"\"}</h2>\n      <div class=\"card-body\">${feature.body || \"\"}</div>\n      <div class=\"tag-row\">${buildTags(tags)}</div>\n    </div>\n\n    <div class=\"quote-block\">\n      <p class=\"quote-text\">${quote.text || \"\"}</p>\n      <div class=\"quote-source\">— ${quote.source || \"\"}</div>\n    </div>\n\n    <div class=\"section-label\"><div class=\"line\"></div><span>Key Developments</span><div class=\"line\"></div></div>\n    <div class=\"three-grid\">\n      <div class=\"grid-cell\"><div class=\"mini-card\">\n        <div class=\"mini-card-icon\">${d1.icon || \"⚡\"}</div>\n        <div class=\"mini-card-title\">${d1.title || \"\"}</div>\n        <p class=\"mini-card-body\">${d1.body || \"\"}</p>\n      </div></div>\n      <div class=\"grid-cell\"><div class=\"mini-card\">\n        <div class=\"mini-card-icon\">${d2.icon || \"🔗\"}</div>\n        <div class=\"mini-card-title\">${d2.title || \"\"}</div>\n        <p class=\"mini-card-body\">${d2.body || \"\"}</p>\n      </div></div>\n      <div class=\"grid-cell\"><div class=\"mini-card\">\n        <div class=\"mini-card-icon\">${d3.icon || \"🧠\"}</div>\n        <div class=\"mini-card-title\">${d3.title || \"\"}</div>\n        <p class=\"mini-card-body\">${d3.body || \"\"}</p>\n      </div></div>\n    </div>\n\n    <div class=\"spacer-md\"></div>\n    <div class=\"section-label\"><div class=\"line\"></div><span>${list_section.title || \"Top Insights\"}</span><div class=\"line\"></div></div>\n    <div class=\"numbered-section\">${buildNumberedItems(list_section.items)}</div>\n\n    <div class=\"cta-block\">\n      <h3 class=\"cta-title\">${cta.title || \"Go Deeper\"}</h3>\n      <p class=\"cta-body\">${cta.body || \"\"}</p>\n      <a href=\"${cta.url || \"#\"}\" class=\"cta-btn\">${cta.button_text || \"Explore Now\"}</a>\n    </div>\n    <div class=\"spacer-sm\"></div>\n  </div>\n\n  <div class=\"footer-section\">\n    <div class=\"footer-brand\">The Agentic<span>.</span>Edge</div>\n    <div class=\"footer-links\">\n      <a href=\"#\">Unsubscribe</a>\n      <a href=\"#\">View in browser</a>\n      <a href=\"#\">Privacy Policy</a>\n    </div>\n    <p class=\"footer-text\">\n      ${footer || \"This newsletter was generated by AI and curated for you.\"}<br/>\n      Requested via ${sourceLabel}. © ${year} The Agentic Edge.\n    </p>\n  </div>\n</div>\n</body>\n</html>\n`;\n\n// ── 5. Return to N8n ──────────────────────────────────────────\nreturn [{\n  json: {\n    triggerSource: isGmail ? \"gmail\" : \"slack\",\n    topic,\n    senderEmail,\n    htmlBody,\n    emailSubject: `🤖 ${title} — The Agentic Edge`,\n    toEmail: senderEmail,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -192
+      ],
+      "id": "30974070-1cf4-4e6d-9654-a377f52322b2",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        48
+      ],
+      "id": "68e75775-1e6d-49bf-b6ad-e022760d2cdc",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "any_event",
+          "app_mention",
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C0AP2V7N4KH",
+          "mode": "list",
+          "cachedResultName": "all-socialeagle"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        -16
+      ],
+      "id": "294bf520-8c3f-42a3-aa4c-e69d3e0fe6ad",
+      "name": "Slack Trigger",
+      "webhookId": "4a1b39e3-8994-40a9-90fe-36dfc9c66cf2",
+      "credentials": {
+        "slackApi": {
+          "id": "MrFj2BnVE57acgEh",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1741b398-8f1e-4aab-b8c1-a896ad70139d",
+              "leftValue": "={{ $json.snippet }}",
+              "rightValue": "newsletter",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1200,
+        -912
+      ],
+      "id": "0d873479-a812-4e62-bbf9-2a5b699afdf7",
+      "name": "If1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "680ea862-d3c3-4676-979d-a9238f0e4ef6",
+              "name": "from_email",
+              "value": "={{ $('Gmail Trigger').item.json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "716eec2c-81d6-41dc-9893-a64350c4a2ef",
+              "name": "to_email",
+              "value": "={{ $json.To }}",
+              "type": "string"
+            },
+            {
+              "id": "8bad822b-4a65-442e-92a1-99d09fb85d42",
+              "name": "subject",
+              "value": "={{ $json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "30e2d753-6e29-446f-a3f9-8b24a4b659b7",
+              "name": "newsletter_content",
+              "value": "={{ $json.snippet }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        -240
+      ],
+      "id": "d31b4de4-5956-4ac9-923b-c100bc079ae2",
+      "name": "Gmail trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "680ea862-d3c3-4676-979d-a9238f0e4ef6",
+              "name": "from_email",
+              "value": "=vickypaiyaa@gmail.com",
+              "type": "string"
+            },
+            {
+              "id": "716eec2c-81d6-41dc-9893-a64350c4a2ef",
+              "name": "to_email",
+              "value": "=vickypaiyaa@gmail.com",
+              "type": "string"
+            },
+            {
+              "id": "8bad822b-4a65-442e-92a1-99d09fb85d42",
+              "name": "subject",
+              "value": "={{ $('Slack Trigger').item.json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "30e2d753-6e29-446f-a3f9-8b24a4b659b7",
+              "name": "newsletter_content",
+              "value": "={{ $('Slack Trigger').item.json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        -64
+      ],
+      "id": "8136a749-2435-407c-af43-47d2143e14fd",
+      "name": "Slack Trigger1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "484f9624-1b89-4ea3-8c81-0e812c0fa81b",
+                    "leftValue": "={{ $json.snippet }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Gmail"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel_type }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "cf9412b0-7d2a-41ee-b72c-458e73778a07"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Slack"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -800,
+        -128
+      ],
+      "id": "5995425b-bd63-492a-8100-2af39341fd89",
+      "name": "Switch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Gmail trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Gmail trigger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack Trigger1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f373b9e4-d5e3-4a37-952d-48b42f3c5295",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3da9e7b7c00bc107b834f1ca17f26178c277b594475d1e4a72654387ff1a5986"
+  },
+  "id": "cau1LdRvBnNzkYEz",
+  "tags": []
+}
